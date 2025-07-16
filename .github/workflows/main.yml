@@ -7,20 +7,19 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install WingetCreate CLI
+      - name: Download WingetCreate CLI
         run: |
-          winget install --id Microsoft.WingetCreate -e --accept-package-agreements --accept-source-agreements
-          echo "✅ WingetCreate installed."
+          Invoke-WebRequest -Uri "https://github.com/microsoft/winget-create/releases/latest/download/WingetCreate.exe" -OutFile "WingetCreate.exe"
 
       - name: Generate repo.sqlite
         run: |
           mkdir output
-          wingetcreate index --add-manifests ./manifests --output ./output/repo.sqlite
-          echo "✅ repo.sqlite created."
+          ./WingetCreate.exe index --add-manifests ./manifests --output ./output/repo.sqlite
 
       - name: Upload to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
