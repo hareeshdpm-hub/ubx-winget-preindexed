@@ -1,0 +1,29 @@
+name: Build PreIndexed Winget Repo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install WingetCreate CLI
+        run: |
+          winget install --id Microsoft.WingetCreate -e --accept-package-agreements --accept-source-agreements
+          echo "✅ WingetCreate installed."
+
+      - name: Generate repo.sqlite
+        run: |
+          mkdir output
+          wingetcreate index --add-manifests ./manifests --output ./output/repo.sqlite
+          echo "✅ repo.sqlite created."
+
+      - name: Upload to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
